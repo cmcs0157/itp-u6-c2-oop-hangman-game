@@ -4,7 +4,7 @@ from .exceptions import *
 
 class GuessAttempt(object):
     
-    def __init__(self, character, hit=None, miss=None):
+    def __init__(self, character, hit=False, miss=False):
         self.character = character
         self.hit = hit
         self.miss = miss
@@ -13,11 +13,10 @@ class GuessAttempt(object):
     
     def is_hit(self):
         return self.hit == True
-    
+        
     def is_miss(self):
         return self.miss == True
-
-
+        
 class GuessWord(object):
     
     def __init__(self, answer):
@@ -26,13 +25,19 @@ class GuessWord(object):
         self.answer = answer
         self.masked = len(answer) * '*'
         
-        
     def perform_attempt(self, character):
         if len(character) > 1:
             raise InvalidGuessedLetterException
         
-
-
+        if character.lower() in self.answer.lower():
+            self.masked = list(self.masked)
+            for index, letter in enumerate(self.answer):
+                if character.lower() == letter.lower():
+                    self.masked[index] = character.lower()
+            self.masked = ''.join(self.masked)
+            return GuessAttempt(character, hit=True)
+        return GuessAttempt(character, miss=True)
+        
 class HangmanGame(object):
     WORD_LIST = ['rmotr', 'python', 'awesome']
     
@@ -44,7 +49,6 @@ class HangmanGame(object):
     
     def guess(self, character):
         pass
-        
         
     @classmethod    
     def select_random_word(cls, word_list):
